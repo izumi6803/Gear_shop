@@ -30,7 +30,8 @@ $scenarios = @(
     '12-marketplace.ps1',
     '13-payment-shipping.ps1',
     '14-auth-recovery.ps1',
-    '15-role-admin.ps1'
+    '15-role-admin.ps1',
+    '16-signup-flow.ps1'
 )
 
 function Test-Driver {

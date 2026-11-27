@@ -34,9 +34,11 @@ Bc-Shot 'market-01-public-shop' | Out-Null
 Write-Host "`n== 2. Tu dang ky tai khoan mua hang" -ForegroundColor Cyan
 Bc-Goto "$base/register" | Out-Null
 Start-Sleep -Milliseconds 1200
-Bc-Fill '[data-testid=register-username]' $newUser
+Bc-Fill '[data-testid=register-email]' "$newUser@shop.local"
 Bc-Fill '[data-testid=register-password]' 'Shopper@123'
 Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
+Bc-Click '[data-testid=register-next]'
+Start-Sleep -Milliseconds 900
 Bc-Fill '[data-testid=register-display-name]' 'Market Tester'
 Bc-Click '[data-testid=register-submit]'
 Start-Sleep -Milliseconds 3000

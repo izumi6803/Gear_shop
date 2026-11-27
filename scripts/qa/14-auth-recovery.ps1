@@ -10,6 +10,7 @@ $base = 'http://localhost:4173'
 if ($env:SPA_BASE) { $base = $env:SPA_BASE }
 $stamp = Get-Date -Format 'HHmmss'
 $newUser = "acc$stamp"
+$mail = "$newUser@shop.local"
 
 function Login([string]$user, [string]$pass, [string]$lang = 'en') {
     Bc-Open "$base/login" -Storage @{ 'stockflow.lang' = $lang } | Out-Null
@@ -52,40 +53,41 @@ Bc-Assert ((Bc-Url) -notmatch '/checkout') "admin gõ /checkout bị đá đi (u
 Bc-Click '[data-testid=logout]'
 Start-Sleep -Milliseconds 1200
 
-Write-Host "`n== 3. Dang ky: validate phia client" -ForegroundColor Cyan
+Write-Host "`n== 3. Dang ky: validate tung o" -ForegroundColor Cyan
 Bc-Goto "$base/register" | Out-Null
 Start-Sleep -Milliseconds 1600
-Bc-Fill '[data-testid=register-username]' 'ab'
 Bc-Fill '[data-testid=register-password]' 'Shopper@123'
 Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
-Bc-Click '[data-testid=register-submit]'
+Bc-Click '[data-testid=register-next]'
 Start-Sleep -Milliseconds 1200
-$err1 = (Bc-Text '[data-testid=register-error]').text
-Bc-Assert ($err1 -match '3') "báo lỗi tên đăng nhập quá ngắn (=$err1)" | Out-Null
+$err1 = (Bc-Text '[data-testid=register-error-email]').text
+Bc-Assert ($err1 -match 'mail') "bao loi thieu email (=$err1)" | Out-Null
 
-Bc-Fill '[data-testid=register-username]' $newUser
-Bc-Fill '[data-testid=register-password]' 'Shopper@123'
-Bc-Fill '[data-testid=register-confirm]' 'Khac@123'
-Bc-Click '[data-testid=register-submit]'
-Start-Sleep -Milliseconds 1200
-$err2 = (Bc-Text '[data-testid=register-error]').text
-Bc-Assert ($err2 -match 'khớp|match') "báo lỗi nhập lại mật khẩu không khớp (=$err2)" | Out-Null
-
-Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
 Bc-Fill '[data-testid=register-email]' 'khong-phai-email'
-Bc-Click '[data-testid=register-submit]'
+Bc-Click '[data-testid=register-next]'
 Start-Sleep -Milliseconds 1200
-$err3 = (Bc-Text '[data-testid=register-error]').text
-Bc-Assert ($err3 -match 'Email|email') "báo lỗi email sai định dạng (=$err3)" | Out-Null
+$err2 = (Bc-Text '[data-testid=register-error-email]').text
+Bc-Assert ($err2 -match 'Email|email') "bao loi email sai dinh dang (=$err2)" | Out-Null
+
+Bc-Fill '[data-testid=register-email]' $mail
+Bc-Fill '[data-testid=register-confirm]' 'Khac@123'
+Bc-Click '[data-testid=register-next]'
+Start-Sleep -Milliseconds 1200
+$err3 = (Bc-Text '[data-testid=register-error-confirm]').text
+Bc-Assert ($err3 -match 'khớp|match') "bao loi nhap lai mat khau khong khop (=$err3)" | Out-Null
 Bc-Shot 'auth-04-register-validation' | Out-Null
 
-Write-Host "`n== 4. Dang ky hop le" -ForegroundColor Cyan
-Bc-Fill '[data-testid=register-email]' "$newUser@shop.local"
+Write-Host "`n== 4. Dang ky hop le: 2 buoc" -ForegroundColor Cyan
+Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
+Bc-Click '[data-testid=register-next]'
+Start-Sleep -Milliseconds 1300
+Bc-Assert ((Bc-Count '[data-testid=register-submit]') -eq 1) "sang duoc buoc 2 (nhap hang)" | Out-Null
+Bc-Fill '[data-testid=register-display-name]' 'Acc Tester'
 Bc-Click '[data-testid=register-submit]'
 Start-Sleep -Milliseconds 3200
-Bc-Assert ((Bc-Url) -match '/shop') "đăng ký xong vào cửa hàng (url=$(Bc-Url))" | Out-Null
+Bc-Assert ((Bc-Url) -match '/shop') "dang ky xong vao cua hang (url=$(Bc-Url))" | Out-Null
 $role = (Bc-Text '.app-user-meta small').text.Trim()
-Bc-Assert ($role -eq 'Customer') "tài khoản mới có role Customer (=$role)" | Out-Null
+Bc-Assert ($role -eq 'Customer') "tai khoan moi co role Customer (=$role)" | Out-Null
 Bc-Shot 'auth-05-registered' | Out-Null
 Bc-Click '[data-testid=logout]'
 Start-Sleep -Milliseconds 1300
@@ -93,7 +95,7 @@ Start-Sleep -Milliseconds 1300
 Write-Host "`n== 5. Quen mat khau: lay ma dat lai" -ForegroundColor Cyan
 Bc-Goto "$base/forgot-password" | Out-Null
 Start-Sleep -Milliseconds 1600
-Bc-Fill '[data-testid=forgot-identifier]' $newUser
+Bc-Fill '[data-testid=forgot-identifier]' $mail
 Bc-Click '[data-testid=forgot-submit]'
 Start-Sleep -Milliseconds 2600
 $hasResult = (Bc-Count '[data-testid=forgot-result]')
@@ -118,14 +120,14 @@ Bc-Shot 'auth-08-reset-done' | Out-Null
 Write-Host "`n== 7. Mat khau cu khong con dung, mat khau moi dang nhap duoc" -ForegroundColor Cyan
 Bc-Goto "$base/login" | Out-Null
 Start-Sleep -Milliseconds 1500
-Bc-Fill '[data-testid=login-username]' $newUser
+Bc-Fill '[data-testid=login-username]' $mail
 Bc-Fill '[data-testid=login-password]' 'Shopper@123'
 Bc-Click '[data-testid=login-submit]'
 Start-Sleep -Milliseconds 2600
 $oldFails = (Bc-Count '[data-testid=login-error]')
 Bc-Assert ($oldFails -eq 1) "mật khẩu cũ bị từ chối (=$oldFails)" | Out-Null
 
-Bc-Fill '[data-testid=login-username]' $newUser
+Bc-Fill '[data-testid=login-username]' $mail
 Bc-Fill '[data-testid=login-password]' 'NewPass@456'
 Bc-Click '[data-testid=login-submit]'
 Start-Sleep -Milliseconds 3000

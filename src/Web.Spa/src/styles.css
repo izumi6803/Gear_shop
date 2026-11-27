@@ -1596,3 +1596,47 @@ body {
   padding: 14px;
   background: #fff;
 }
+
+/* ===== Đăng ký: bố cục chia đôi + 2 bước ===== */
+.reg-page{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);max-width:1040px;margin:32px auto;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgb(15 23 42 / .04),0 8px 24px rgb(15 23 42 / .06)}
+.reg-benefits{padding:32px 28px;background:#f8fafc;border-right:1px solid var(--line)}
+.reg-brand{display:flex;align-items:center;gap:8px;margin:0 0 24px;font-weight:700;font-size:15px}
+.reg-brand-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--primary,#2563eb);color:#fff;font-size:12px}
+.reg-photo{margin:0 0 20px;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:#e6e9ef}
+.reg-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.reg-benefit-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.reg-benefit-list li{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.reg-benefit-icon{width:16px;height:16px;flex-shrink:0;margin-top:2px;color:var(--primary,#2563eb)}
+.reg-panel{padding:32px 28px;display:flex;flex-direction:column}
+.reg-panel-top{display:flex;justify-content:flex-end;margin-bottom:8px}
+.reg-card{border:0;padding:0;background:transparent;max-width:100%}
+.reg-steps{display:flex;align-items:center;gap:8px;list-style:none;margin:0 0 20px;padding:0}
+.reg-step{display:flex;align-items:center;gap:8px;color:#64748b;font-size:12.5px;font-weight:500}
+.reg-step-num{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid #cbd5e1;
+  background:#fff;color:#64748b;font-size:11px;font-weight:600}
+.reg-step.is-current{color:#0f172a}
+.reg-step.is-current .reg-step-num{background:var(--primary,#2563eb);border-color:var(--primary,#2563eb);color:#fff}
+.reg-step.is-done .reg-step-num{background:#eff6ff;border-color:var(--primary,#2563eb);color:var(--primary,#2563eb)}
+.reg-step-line{flex:1;height:1px;background:var(--line);list-style:none}
+.reg-title{margin:0 0 6px;font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-.01em}
+.reg-sub{margin:0 0 20px;color:#64748b;font-size:13.5px}
+.reg-field{margin-bottom:16px}
+.reg-label{display:block;margin:0 0 6px;font-size:13px;font-weight:500}
+.reg-optional{color:#94a3b8;font-weight:400}
+.reg-input{display:block;width:100%;height:44px;padding:0 12px;border:1px solid #cbd5e1;border-radius:12px;
+  background:#fff;font-size:14px;color:inherit}
+.reg-input:focus{outline:0;border-color:var(--primary,#2563eb);box-shadow:0 0 0 3px #dbeafe}
+.reg-input.is-invalid{border-color:#dc2626;box-shadow:0 0 0 3px #fef2f2}
+.reg-hint{margin:6px 0 0;color:#64748b;font-size:12px}
+.reg-error{display:flex;align-items:center;gap:4px;margin:6px 0 0;color:#dc2626;font-size:12px}
+.reg-error-icon{width:13px;height:13px;flex-shrink:0}
+.reg-submit{margin-top:4px}
+.reg-skip{margin-top:8px}
+.reg-footer{margin:16px 0 0;padding-top:16px;border-top:1px solid var(--line);text-align:center;font-size:13px;color:#64748b}
+.reg-footer a{color:var(--primary,#2563eb);font-weight:600;text-decoration:none}
+@media (max-width:900px){
+  .reg-page{grid-template-columns:minmax(0,1fr);margin:16px 12px;border-radius:16px}
+  .reg-benefits{display:none}
+  .reg-panel{padding:24px 18px}
+}

@@ -69,11 +69,13 @@ Capture 'them-vao-gio' | Out-Null
 Step 'Khách tạo tài khoản mua hàng'
 Bc-Goto "$base/register" | Out-Null
 Start-Sleep -Milliseconds 1600
-Bc-Fill '[data-testid=register-username]' $shopper
+Bc-Fill '[data-testid=register-email]' "$shopper@shop.local"
 Bc-Fill '[data-testid=register-password]' 'Shopper@123'
 Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
+Capture 'dang-ky-buoc-1' | Out-Null
+Bc-Click '[data-testid=register-next]'
+Start-Sleep -Milliseconds 900
 Bc-Fill '[data-testid=register-display-name]' 'Nguyen Van Demo'
-Bc-Fill '[data-testid=register-email]' "$shopper@shop.local"
 Capture 'dang-ky-tai-khoan' | Out-Null
 Bc-Click '[data-testid=register-submit]'
 Start-Sleep -Milliseconds 3200

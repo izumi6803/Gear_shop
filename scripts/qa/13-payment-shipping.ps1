@@ -25,9 +25,11 @@ function Sign-In([string]$user, [string]$pass) {
 function Register-Shopper([string]$user) {
     Bc-Open "$base/register" -Storage @{ 'stockflow.lang' = 'en' } | Out-Null
     Start-Sleep -Milliseconds 1400
-    Bc-Fill '[data-testid=register-username]' $user
+    Bc-Fill '[data-testid=register-email]' "$user@shop.local"
     Bc-Fill '[data-testid=register-password]' 'Shopper@123'
     Bc-Fill '[data-testid=register-confirm]' 'Shopper@123'
+    Bc-Click '[data-testid=register-next]'
+    Start-Sleep -Milliseconds 900
     Bc-Fill '[data-testid=register-display-name]' 'Pay Tester'
     Bc-Click '[data-testid=register-submit]'
     Start-Sleep -Milliseconds 3000
@@ -130,7 +132,7 @@ Bc-Click '[data-testid=logout]'
 Start-Sleep -Milliseconds 1200
 Bc-Open "$base/login" -Storage @{ 'stockflow.lang' = 'en' } | Out-Null
 Start-Sleep -Milliseconds 1200
-Bc-Fill '[data-testid=login-username]' $shopper
+Bc-Fill '[data-testid=login-username]' "$shopper@shop.local"
 Bc-Fill '[data-testid=login-password]' 'Shopper@123'
 Bc-Click '[data-testid=login-submit]'
 Start-Sleep -Milliseconds 2600
