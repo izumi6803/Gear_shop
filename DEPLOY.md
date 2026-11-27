@@ -149,3 +149,72 @@ vercel --prod
 | Đăng nhập `customer` trên site thật | OK (role Customer) |
 | Thêm vào giỏ + phí ship 15 US$ | OK (tổng 28,00 US$) |
 | CORS từ domain Vercel tới 2 API | `Access-Control-Allow-Origin` đúng |
+
+---
+
+## Backend: đã container hoá và chạy thật (cập nhật)
+
+### Trạng thái
+
+| Thành phần | Trạng thái | Ghi chú |
+|---|---|---|
+| Frontend (Vercel) | **Live** — https://gear-shop-nine.vercel.app | static, rewrite SPA, env trỏ 2 API |
+| Backend (Docker) | **Đang chạy trong container** | `stockflow-catalog` + `stockflow-ordering`, mỗi image ~386 MB |
+| Truy cập công khai | Cloudflare quick tunnel → 2 container | tạm thời, tắt máy là mất |
+
+Đã kiểm chứng trên bản container (không phải `dotnet run`):
+
+| Kiểm tra | Kết quả |
+|---|---|
+| `/health` cả 2 API | healthy |
+| Seed trong container | 8 sản phẩm, `imageUrl=/products/photos/...` |
+| Login admin/customer | 200, đúng role |
+| Checkout COD | tạo đơn `SO-202611-0001`, sub 24 + ship 15 = **41**, `Unpaid` |
+| Xuất kho | 200 → `Shipped`, sinh `INV-202611-0001` |
+| Site Vercel đọc dữ liệu từ container | 8 card + 8 ảnh, 0 lỗi console |
+
+### Chạy lại toàn bộ backend bằng container
+
+```bash
+export JWT_KEY="$(openssl rand -hex 32)"          # BẮT BUỘC đổi, giống nhau ở 2 service
+export INTERNAL_KEY="$(openssl rand -hex 16)"     # BẮT BUỘC đổi
+export APP_ORIGIN="https://gear-shop-nine.vercel.app"
+docker compose -f deploy/docker-compose.yml up -d --build
+docker compose -f deploy/docker-compose.yml ps
+```
+
+Dữ liệu SQLite nằm trong volume `deploy_catalog-data` và `deploy_ordering-data` → `docker compose down` không mất, `down -v` mới xoá.
+
+### Vì sao chưa đưa backend lên cloud
+
+Đã thử và bị chặn ở phía tài khoản (không phải lỗi code):
+
+| Nền tảng | Kết quả |
+|---|---|
+| **Vercel** | Không hỗ trợ .NET 8 runtime + filesystem read-only ⇒ không thể chạy API/SQLite |
+| **Railway** | CLI đã đăng nhập (`tuananh6803@gmail.com`) nhưng **trial đã hết hạn**, cần chọn gói trả phí |
+| **Render** | CLI có, **chưa đăng nhập** (cần xác thực qua dashboard) — blueprint đã viết sẵn: `deploy/render.yaml` |
+| **Fly.io** | Chưa cài `flyctl`, chưa có token |
+
+### Cách đưa BE lên cloud (chọn 1)
+
+**A. Render (blueprint có sẵn, gói starter ~7 USD/tháng vì cần disk cho SQLite)**
+
+1. Render Dashboard → **New → Blueprint** → chọn repo `izumi6803/Gear_shop`
+2. Blueprint Path: `deploy/render.yaml`
+3. Điền 3 biến: `JWT_KEY`, `INTERNAL_KEY` (giống nhau ở cả 2 service), `APP_ORIGIN`
+4. Sau khi deploy, lấy 2 URL dạng `https://stockflow-ordering.onrender.com`
+5. Trên Vercel: sửa `VITE_ORDERING_BASE` / `VITE_CATALOG_BASE` → `cd src/Web.Spa && vercel --prod`
+
+**B. Railway (nếu bạn nâng gói)**
+
+```bash
+railway login && railway init -n gear-shop
+railway add -s catalog && railway add -s ordering
+# mỗi service: Variables → RAILWAY_DOCKERFILE_PATH=deploy/Dockerfile.catalog (hoặc .ordering)
+#              Jwt__Key, Internal__ApiKey, Cors__AllowedOrigins__0
+#              ConnectionStrings__CatalogDb="Data Source=/data/catalog.db" + volume mount /data
+railway up -s catalog -d && railway up -s ordering -d
+```
+
+**C. VPS bất kỳ (rẻ nhất, đã kiểm chứng bằng compose ở trên)** — chạy `docker compose` như mục trên, đặt Nginx/Caddy trước 2 cổng 5080/5081, trỏ DNS, rồi đổi 2 biến Vercel.

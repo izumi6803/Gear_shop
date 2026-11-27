@@ -7,9 +7,7 @@ services:
   catalog:
     build:
       context: ..
-      dockerfile: deploy/Dockerfile.api
-      args:
-        PROJECT: Catalog
+      dockerfile: deploy/Dockerfile.catalog
     image: stockflow-api-catalog
     restart: unless-stopped
     environment:
@@ -25,9 +23,7 @@ services:
   ordering:
     build:
       context: ..
-      dockerfile: deploy/Dockerfile.api
-      args:
-        PROJECT: Ordering
+      dockerfile: deploy/Dockerfile.ordering
     image: stockflow-api-ordering
     restart: unless-stopped
     depends_on:

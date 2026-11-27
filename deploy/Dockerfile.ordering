@@ -1,0 +1,23 @@
+# Ordering API — Dockerfile độc lập (dùng cho Railway/Render/Fly).
+# Build từ thư mục gốc repo: docker build -f deploy/Dockerfile.ordering -t stockflow-ordering .
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY . .
+RUN rm -f global.json \
+    && dotnet publish "src/Services/Ordering/StockFlow.Inventory.Ordering.Api/StockFlow.Inventory.Ordering.Api.csproj" \
+       -c Release -o /app /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app .
+
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    Database__Provider=Sqlite \
+    Database__AutoCreate=true \
+    ConnectionStrings__OrderingDb="Data Source=/data/ordering.db"
+
+RUN mkdir -p /data
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "StockFlow.Inventory.Ordering.Api.dll"]

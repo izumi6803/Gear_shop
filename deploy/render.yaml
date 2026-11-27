@@ -1,0 +1,71 @@
+# Render Blueprint — deploy 2 API .NET 8 (Docker) + đĩa SQLite.
+# Dùng: Render Dashboard → New → Blueprint → chọn repo này. Render đọc file ở deploy/render.yaml
+# (hoặc đổi Blueprint Path thành deploy/render.yaml).
+#
+# Sau khi tạo, đặt 2 biến bí mật (sync: false) trong dashboard:
+#   JWT_KEY      — chuỗi ngẫu nhiên >= 32 ký tự, GIỐNG NHAU ở cả 2 service
+#   INTERNAL_KEY — chuỗi ngẫu nhiên, GIỐNG NHAU ở cả 2 service
+# và APP_ORIGIN = domain frontend (vd https://gear-shop-nine.vercel.app).
+
+services:
+  - type: web
+    name: stockflow-catalog
+    runtime: docker
+    plan: starter          # SQLite cần đĩa persistent ⇒ gói có disk (starter/standard)
+    region: singapore
+    dockerfilePath: ./deploy/Dockerfile.catalog
+    dockerContext: .
+    healthCheckPath: /health
+    disk:
+      name: catalog-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__Provider
+        value: Sqlite
+      - key: ConnectionStrings__CatalogDb
+        value: "Data Source=/data/catalog.db"
+      - key: Jwt__Key
+        sync: false
+      - key: Internal__ApiKey
+        sync: false
+      - key: Cors__AllowedOrigins__0
+        fromEnvVar: APP_ORIGIN
+      - key: APP_ORIGIN
+        sync: false
+
+  - type: web
+    name: stockflow-ordering
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./deploy/Dockerfile.ordering
+    dockerContext: .
+    healthCheckPath: /health
+    disk:
+      name: ordering-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__Provider
+        value: Sqlite
+      - key: ConnectionStrings__OrderingDb
+        value: "Data Source=/data/ordering.db"
+      # Ordering gọi Catalog qua mạng nội bộ của Render.
+      - key: Services__CatalogBaseUrl
+        fromService:
+          type: web
+          name: stockflow-catalog
+          property: hostport
+      - key: Jwt__Key
+        sync: false
+      - key: Internal__ApiKey
+        sync: false
+      - key: Cors__AllowedOrigins__0
+        fromEnvVar: APP_ORIGIN
+      - key: APP_ORIGIN
+        sync: false
