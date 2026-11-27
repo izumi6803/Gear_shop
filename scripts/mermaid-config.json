@@ -1,0 +1,24 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "16px",
+    "fontFamily": "Segoe UI, Arial, sans-serif",
+    "primaryColor": "#eef2ff",
+    "primaryTextColor": "#0f1f3d",
+    "primaryBorderColor": "#2f6fed",
+    "lineColor": "#4b5563",
+    "tertiaryColor": "#f8fafc"
+  },
+  "er": {
+    "useMaxWidth": false,
+    "layoutDirection": "TB"
+  },
+  "flowchart": {
+    "useMaxWidth": false,
+    "curve": "basis"
+  },
+  "sequence": {
+    "useMaxWidth": false,
+    "wrap": true
+  }
+}

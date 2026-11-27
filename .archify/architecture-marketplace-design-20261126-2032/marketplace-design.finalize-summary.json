@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\candidate.json",
+    "sha256": "45ebdc4abce9af7f429f7c44ffcca034293478ddbc5f9a94630e4c35d04e9087",
+    "bytes": 4731
+  },
+  "artifact": {
+    "path": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\marketplace-design.html",
+    "sha256": "a2432360d55fe5bad849af79e9d25b826e76173766bca1c884ee05383a71292d",
+    "bytes": 950286
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\marketplace-design.finalize.json",
+    "summaryReceipt": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\marketplace-design.finalize-summary.json",
+    "browserCheckReceipt": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\marketplace-design.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.3.2",
+    "availableVersion": "3.3.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-26T01:26:56.693Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 30854,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 1,
+      "routesOverSuggestedBends": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "storefront-catalog",
+            "from": "storefront",
+            "to": "catalogApi",
+            "label": "GET products &amp; stock (public)",
+            "collectionIndex": 1,
+            "artifactIndex": 2
+          },
+          "right": {
+            "id": "backoffice-ordering",
+            "from": "backoffice",
+            "to": "orderingApi",
+            "label": "orders · accounts · status (staff JWT)",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "point": [
+            517,
+            343
+          ]
+        }
+      ],
+      "detours": [
+        {
+          "relationship": {
+            "id": "backoffice-ordering",
+            "from": "backoffice",
+            "to": "orderingApi",
+            "label": "orders · accounts · status (staff JWT)",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "bends": 4,
+          "stretch": 1
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "orderingApi has 4 relationships facing its right side, which fits 3 ports: make that side at least 74px, or move some of those neighbours so they face another side of orderingApi.",
+      "storefront → catalogApi crosses backoffice → orderingApi: move the node of whichever is a branch, return, or second entrance to the other side of the main path, so that relationship runs through an empty corridor.",
+      "backoffice → orderingApi needs 4 bends: move node backoffice or orderingApi so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

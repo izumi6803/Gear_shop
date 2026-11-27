@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "StockFlow Marketplace — storefront + back office",
+    "subtitle": "Target design, before implementation",
+    "locale": "en",
+    "output": ".archify/architecture-marketplace-design-20261126-2032/marketplace-design.html",
+    "quality_profile": "showcase"
+  },
+  "layout": { "mode": "auto" },
+  "components": [
+    {
+      "id": "shopper",
+      "type": "external",
+      "label": "Shopper",
+      "sublabel": "browser · anonymous or Customer",
+      "icon": "person"
+    },
+    {
+      "id": "staff",
+      "type": "external",
+      "label": "Staff",
+      "sublabel": "Admin · Sales · Viewer",
+      "icon": "person"
+    },
+    {
+      "id": "storefront",
+      "type": "frontend",
+      "label": "Storefront",
+      "sublabel": "React · public surface",
+      "tag": "browse · cart · checkout",
+      "icon": "frontend"
+    },
+    {
+      "id": "backoffice",
+      "type": "frontend",
+      "label": "Back office",
+      "sublabel": "React · authenticated surface",
+      "tag": "orders · catalog · accounts",
+      "icon": "frontend"
+    },
+    {
+      "id": "catalogApi",
+      "type": "backend",
+      "label": "Catalog API",
+      "sublabel": "ASP.NET Core 8 · :5080",
+      "tag": "products & stock",
+      "icon": "backend"
+    },
+    {
+      "id": "orderingApi",
+      "type": "backend",
+      "label": "Ordering API",
+      "sublabel": "ASP.NET Core 8 · :5081",
+      "tag": "orders · payments · accounts",
+      "icon": "backend"
+    },
+    {
+      "id": "catalogDb",
+      "type": "database",
+      "label": "Catalog DB",
+      "sublabel": "SQL Server · SQLite in dev"
+    },
+    {
+      "id": "orderingDb",
+      "type": "database",
+      "label": "Ordering DB",
+      "sublabel": "SQL Server · SQLite in dev"
+    },
+    {
+      "id": "psp",
+      "type": "external",
+      "label": "Payment provider",
+      "sublabel": "sandbox · simulated in this demo",
+      "tag": "no real charge",
+      "icon": "cloud"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Self-hosted runtime · Docker Compose / Kubernetes",
+      "wraps": ["catalogApi", "orderingApi", "catalogDb", "orderingDb"]
+    }
+  ],
+  "connections": [
+    { "id": "shopper-storefront", "from": "shopper", "to": "storefront", "label": "HTTPS · browse anonymously" },
+    { "id": "storefront-catalog", "from": "storefront", "to": "catalogApi", "label": "GET products & stock (public)" },
+    { "id": "storefront-ordering", "from": "storefront", "to": "orderingApi", "label": "checkout · pay · my orders (Customer JWT)", "variant": "emphasis" },
+    { "id": "staff-backoffice", "from": "staff", "to": "backoffice", "label": "HTTPS · staff sign-in" },
+    { "id": "backoffice-ordering", "from": "backoffice", "to": "orderingApi", "label": "orders · accounts · status (staff JWT)", "variant": "emphasis" },
+    { "id": "backoffice-catalog", "from": "backoffice", "to": "catalogApi", "label": "products & stock (Sales · Admin)" },
+    { "id": "ordering-catalog", "from": "orderingApi", "to": "catalogApi", "label": "/internal/stocks/* · X-Internal-Key", "variant": "security" },
+    { "id": "ordering-psp", "from": "orderingApi", "to": "psp", "label": "authorise + capture (sandbox)", "variant": "dashed" },
+    { "id": "ordering-db", "from": "orderingApi", "to": "orderingDb", "label": "EF Core" },
+    { "id": "catalog-db", "from": "catalogApi", "to": "catalogDb", "label": "EF Core" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Storefront (user)",
+      "items": [
+        "Browse and search products with no account; prices and stock come from the Catalog API",
+        "Cart lives in the browser until checkout",
+        "Checkout creates the order and reserves stock immediately, so oversell is impossible",
+        "Payment comes after the reservation; the shopper then follows the order in My orders"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Back office (staff)",
+      "items": [
+        "Admin: manage accounts (create, change role, disable) and read status/revenue",
+        "Sales: create and update products, adjust stock, confirm and ship orders",
+        "Viewer: read-only — sees orders and stock, no business actions",
+        "Same APIs as the storefront; only the role in the JWT differs"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Payment scope",
+      "items": [
+        "The provider edge is a sandbox: card data is validated (Luhn, expiry, CVV) and only a reference is stored",
+        "No real charge, no PCI data at rest — a real gateway replaces one client call",
+        "Ship is blocked until payment status is Paid"
+      ]
+    }
+  ]
+}

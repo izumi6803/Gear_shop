@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "StockFlow — order & inventory runtime",
+    "locale": "en",
+    "output": ".archify/architecture-stockflow-20261126-082612/stockflow-architecture.html",
+    "quality_profile": "showcase"
+  },
+  "layout": { "mode": "auto" },
+  "components": [
+    {
+      "id": "operator",
+      "type": "external",
+      "label": "Sales operator",
+      "sublabel": "browser · EN / VI / JA"
+    },
+    {
+      "id": "spa",
+      "type": "frontend",
+      "label": "React SPA",
+      "sublabel": "Vite · TypeScript",
+      "tag": "3 languages",
+      "icon": "frontend"
+    },
+    {
+      "id": "admin",
+      "type": "frontend",
+      "label": "Razor admin",
+      "sublabel": "server-rendered pages"
+    },
+    {
+      "id": "desktop",
+      "type": "frontend",
+      "label": "WinForms back-office",
+      "sublabel": ".NET 8 client"
+    },
+    {
+      "id": "ordering",
+      "type": "backend",
+      "label": "Ordering API",
+      "sublabel": "ASP.NET Core 8 · :5081",
+      "tag": "orders · invoices · auth",
+      "icon": "backend"
+    },
+    {
+      "id": "catalog",
+      "type": "backend",
+      "label": "Catalog API",
+      "sublabel": "ASP.NET Core 8 · :5080",
+      "tag": "stock ledger",
+      "icon": "backend"
+    },
+    {
+      "id": "orderingDb",
+      "type": "database",
+      "label": "Ordering DB",
+      "sublabel": "SQL Server · SQLite in dev"
+    },
+    {
+      "id": "catalogDb",
+      "type": "database",
+      "label": "Catalog DB",
+      "sublabel": "SQL Server · SQLite in dev"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Self-hosted runtime · Docker Compose / Kubernetes",
+      "wraps": ["ordering", "catalog", "orderingDb", "catalogDb"]
+    }
+  ],
+  "connections": [
+    { "id": "operator-spa", "from": "operator", "to": "spa", "label": "HTTPS" },
+    { "id": "spa-ordering", "from": "spa", "to": "ordering", "label": "REST /api/* · JWT bearer", "variant": "emphasis" },
+    { "id": "spa-catalog", "from": "spa", "to": "catalog", "label": "REST products & stock" },
+    { "id": "ordering-catalog", "from": "ordering", "to": "catalog", "label": "/internal/stocks/* · X-Internal-Key", "variant": "security" },
+    { "id": "ordering-db", "from": "ordering", "to": "orderingDb", "label": "EF Core" },
+    { "id": "catalog-db", "from": "catalog", "to": "catalogDb", "label": "EF Core" },
+    { "id": "admin-ordering", "from": "admin", "to": "ordering", "label": "REST + JWT" },
+    { "id": "admin-catalog", "from": "admin", "to": "catalog", "label": "REST + JWT" },
+    { "id": "desktop-ordering", "from": "desktop", "to": "ordering", "label": "REST + JWT" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Order lifecycle",
+      "items": [
+        "Draft → Confirmed reserves stock, Shipped issues stock and generates the invoice",
+        "Cancel releases the reservation; a 409 shortage leaves the order in Draft",
+        "Prices and product names are snapshotted into ORDER_LINE at creation"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Data ownership",
+      "items": [
+        "Each service owns its database; no foreign keys cross the boundary",
+        "STOCK_MOVEMENT is append-only, so every quantity change is auditable",
+        "Ordering never reads Catalog tables — it calls the API"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Money and taxes",
+      "items": [
+        "10% tax computed on the server, rounded away from zero",
+        "The client total is display-only; the server recomputes on save",
+        "Invoice and seller profile are printed from the invoice endpoint"
+      ]
+    }
+  ]
+}

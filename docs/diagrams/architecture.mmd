@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph clients["Clients"]
+        S["SPA — React 18 + TypeScript<br/>Vite · Bootstrap 5"]
+        W["Admin Web<br/>Razor Pages"]
+        D["Back-office<br/>WinForms .NET 8"]
+        R["Crystal Report<br/>(legacy)"]
+    end
+
+    ING["Ingress / Nginx (TLS)<br/>+ proxy /ordering-api, /catalog-api"]
+
+    subgraph services["Domain services"]
+        O["Ordering API<br/>ASP.NET Core 8 · EF Core<br/>Customer · Order · Invoice · Auth"]
+        C["Catalog API<br/>ASP.NET Core 8 · EF Core<br/>Product · Warehouse · Stock"]
+    end
+
+    subgraph data["Data stores"]
+        DB1[("SQL Server<br/>OrderingDb<br/>(dev: SQLite)")]
+        DB2[("SQL Server<br/>CatalogDb<br/>(dev: SQLite)")]
+        ORA[("Oracle XE legacy<br/>STOCK_MONTHLY_REPORT")]
+    end
+
+    ING --> S
+    ING --> W
+    S -->|"HTTPS + JWT"| O
+    S -.->|"HTTPS + JWT (read)"| C
+    W -->|"HTTPS + JWT"| O
+    W -.->|"HTTPS + JWT (read)"| C
+    D -->|"HTTPS + JWT"| O
+    O -->|"HTTP + X-Internal-Key<br/>/internal/stocks/*"| C
+    O --- DB1
+    C --- DB2
+    O -.->|"ETL nightly"| ORA
+    R --- ORA

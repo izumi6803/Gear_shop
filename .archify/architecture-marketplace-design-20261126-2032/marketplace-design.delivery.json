@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "90557a7f-2d68-4f84-ad2a-065372b7ac30",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\candidate.json",
+  "output": "E:\\C# Project\\.archify\\architecture-marketplace-design-20261126-2032\\marketplace-design.html",
+  "specification": {
+    "sha256": "45ebdc4abce9af7f429f7c44ffcca034293478ddbc5f9a94630e4c35d04e9087",
+    "bytes": 4731
+  },
+  "artifact": {
+    "sha256": "a2432360d55fe5bad849af79e9d25b826e76173766bca1c884ee05383a71292d",
+    "bytes": 950286
+  }
+}

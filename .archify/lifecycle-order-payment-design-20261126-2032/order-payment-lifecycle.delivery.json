@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "635dddd7-0e83-4d51-8557-0bac918b23c8",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\candidate.json",
+  "output": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\order-payment-lifecycle.html",
+  "specification": {
+    "sha256": "d5721889a4df90bfe0558d2e47e2f172c6bb974c6d7bd4b2bce8cff3631bda70",
+    "bytes": 3794
+  },
+  "artifact": {
+    "sha256": "f621648cbaaf97cdf45072570ca74c7f7bd17e10e1c63c46c38be89917881835",
+    "bytes": 942280
+  }
+}

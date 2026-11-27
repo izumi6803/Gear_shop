@@ -1,0 +1,48 @@
+# Stack đầy đủ: 2 API .NET 8 + SQLite trên volume.
+# Chạy: docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Đổi JWT key và internal key trước khi dùng thật (biến môi trường bên dưới).
+
+services:
+  catalog:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+      args:
+        PROJECT: Catalog
+    image: stockflow-api-catalog
+    restart: unless-stopped
+    environment:
+      ConnectionStrings__CatalogDb: "Data Source=/data/catalog.db"
+      Cors__AllowedOrigins__0: "${APP_ORIGIN:-http://localhost:4173}"
+      Jwt__Key: "${JWT_KEY:-change-me-in-production-0123456789abcdef}"
+      Internal__ApiKey: "${INTERNAL_KEY:-change-me-internal}"
+    volumes:
+      - catalog-data:/data
+    ports:
+      - "5080:8080"
+
+  ordering:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+      args:
+        PROJECT: Ordering
+    image: stockflow-api-ordering
+    restart: unless-stopped
+    depends_on:
+      - catalog
+    environment:
+      ConnectionStrings__OrderingDb: "Data Source=/data/ordering.db"
+      Services__CatalogBaseUrl: "http://catalog:8080"
+      Cors__AllowedOrigins__0: "${APP_ORIGIN:-http://localhost:4173}"
+      Jwt__Key: "${JWT_KEY:-change-me-in-production-0123456789abcdef}"
+      Internal__ApiKey: "${INTERNAL_KEY:-change-me-internal}"
+    volumes:
+      - ordering-data:/data
+    ports:
+      - "5081:8080"
+
+volumes:
+  catalog-data:
+  ordering-data:

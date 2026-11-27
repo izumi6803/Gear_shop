@@ -1,0 +1,29 @@
+# Dockerfile cho 2 API .NET 8 (dùng chung, chọn project qua build-arg PROJECT).
+# Build từ thư mục gốc repo:
+#   docker build -f deploy/Dockerfile.api --build-arg PROJECT=Catalog  -t stockflow-api-catalog  .
+#   docker build -f deploy/Dockerfile.api --build-arg PROJECT=Ordering -t stockflow-api-ordering .
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG PROJECT=Catalog
+WORKDIR /src
+
+# global.json pin SDK 8.0.416 — image có thể khác bản, bỏ pin để build được trong container.
+COPY . .
+RUN rm -f global.json \
+    && dotnet publish "src/Services/${PROJECT}/StockFlow.Inventory.${PROJECT}.Api/StockFlow.Inventory.${PROJECT}.Api.csproj" \
+       -c Release -o /app /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+ARG PROJECT=Catalog
+WORKDIR /app
+COPY --from=build /app .
+
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    Database__Provider=Sqlite \
+    Database__AutoCreate=true \
+    APP_DLL=StockFlow.Inventory.${PROJECT}.Api.dll
+
+EXPOSE 8080
+# Shell form để nội suy $APP_DLL (tên assembly khác nhau giữa 2 API).
+ENTRYPOINT ["sh", "-c", "dotnet \"$APP_DLL\""]

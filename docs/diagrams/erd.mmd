@@ -1,0 +1,113 @@
+erDiagram
+    CUSTOMER ||--o{ ORDER : "đặt"
+    ORDER ||--|{ ORDER_LINE : "có dòng"
+    ORDER ||--o| INVOICE : "hoá đơn"
+    APP_USER ||--o{ ORDER : "tạo"
+    PRODUCT ||--o{ ORDER_LINE : "logical"
+    PRODUCT ||--o{ STOCK : "tồn kho"
+    WAREHOUSE ||--o{ STOCK : "chứa"
+    PRODUCT ||--o{ STOCK_MOVEMENT : "phát sinh"
+    WAREHOUSE ||--o{ STOCK_MOVEMENT : "tại"
+
+    CUSTOMER {
+        int Id PK
+        string Code UK
+        string Name
+        string NameKana
+        string Email
+        string Phone
+        string Address
+        boolean IsActive
+        rowversion RowVersion
+    }
+
+    ORDER {
+        int Id PK
+        string OrderNo UK
+        int CustomerId FK
+        date OrderDate
+        string Status
+        decimal SubTotal
+        decimal TaxAmount
+        decimal TotalAmount
+        datetime ConfirmedAt
+        datetime ShippedAt
+        string CreatedBy
+        rowversion RowVersion
+    }
+
+    ORDER_LINE {
+        int Id PK
+        int OrderId FK
+        int ProductId
+        string ProductCode
+        string ProductName
+        int WarehouseId
+        decimal UnitPrice
+        int Quantity
+        decimal LineAmount
+        rowversion RowVersion
+    }
+
+    INVOICE {
+        int Id PK
+        string InvoiceNo UK
+        int OrderId FK
+        datetime IssuedAt
+        date DueDate
+        decimal Amount
+        decimal TaxAmount
+        string Status
+        rowversion RowVersion
+    }
+
+    APP_USER {
+        int Id PK
+        string Username UK
+        string PasswordHash
+        string DisplayName
+        string Role
+        boolean IsActive
+    }
+
+    PRODUCT {
+        int Id PK
+        string Code UK
+        string Name
+        string NameJa
+        string Category
+        string Unit
+        decimal UnitPrice
+        boolean IsActive
+        rowversion RowVersion
+    }
+
+    WAREHOUSE {
+        int Id PK
+        string Code UK
+        string Name
+        string Location
+        boolean IsActive
+    }
+
+    STOCK {
+        int Id PK
+        int ProductId FK
+        int WarehouseId FK
+        int QuantityOnHand
+        int QuantityReserved
+        datetime UpdatedAt
+        rowversion RowVersion
+    }
+
+    STOCK_MOVEMENT {
+        bigint Id PK
+        int ProductId FK
+        int WarehouseId FK
+        string MovementType
+        int Quantity
+        string ReferenceType
+        string ReferenceNo
+        datetime OccurredAt
+        string CreatedBy
+    }

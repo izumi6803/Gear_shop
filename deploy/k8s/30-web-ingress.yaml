@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: stockflow-inventory
+  labels:
+    app: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/your-org/stockflow-inventory/web:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: Services__CatalogBaseUrl
+              value: "http://catalog-api:8080"
+            - name: Services__OrderingBaseUrl
+              value: "http://ordering-api:8080"
+          envFrom:
+            - configMapRef:
+                name: inventory-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: stockflow-inventory
+spec:
+  selector:
+    app: web
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inventory-ingress
+  namespace: stockflow-inventory
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # /internal/* của Catalog KHÔNG expose ra ngoài — chỉ Ordering gọi qua ClusterIP.
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [inventory.example.com]
+      secretName: inventory-tls
+  rules:
+    - host: inventory.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 8080

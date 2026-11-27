@@ -1,0 +1,130 @@
+@page
+@model StockFlow.Inventory.Web.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Hàng hoá & tồn kho";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-0">product · Hàng hoá &amp; tồn kho</h1>
+        <p class="text-muted small mb-0">Master data thuộc <strong>Catalog service</strong> (CatalogDb).</p>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <input name="keyword" value="@Model.Keyword" class="form-control form-control-sm" placeholder="Mã hoặc tên hàng..." />
+        <button class="btn btn-sm btn-outline-secondary">Tìm</button>
+    </form>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-products">Sản phẩm (@Model.Products.Count)</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-stocks">Tồn kho (@Model.Stocks.Count)</button></li>
+    @if (Model.CanEdit)
+    {
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-create">+ Thêm sản phẩm</button></li>
+    }
+</ul>
+
+<div class="tab-content bg-white border border-top-0 p-3">
+    <div class="tab-pane fade show active" id="tab-products">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên (JP)</th>
+                    <th>Nhóm</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th>Đơn vị</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td class="fw-semibold">@product.Code</td>
+                        <td>@product.Name</td>
+                        <td>@product.Category</td>
+                        <td class="text-end">@product.UnitPrice.ToString("N0") ¥</td>
+                        <td>@product.Unit</td>
+                        <td>
+                            @if (product.IsActive)
+                            {
+                                <span class="badge text-bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-stocks">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Hàng</th>
+                    <th>Kho</th>
+                    <th class="text-end">Thực tế</th>
+                    <th class="text-end">Đã giữ</th>
+                    <th class="text-end">Khả dụng</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var stock in Model.Stocks)
+                {
+                    <tr class="@(stock.Available <= 0 ? "table-warning" : string.Empty)">
+                        <td>@stock.ProductCode — @stock.ProductName</td>
+                        <td>@stock.WarehouseCode</td>
+                        <td class="text-end">@stock.QuantityOnHand</td>
+                        <td class="text-end">@stock.QuantityReserved</td>
+                        <td class="text-end fw-semibold">@stock.Available</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.CanEdit)
+    {
+        <div class="tab-pane fade" id="tab-create">
+            <form method="post" asp-page-handler="Create" class="row g-3 p-2">
+                <div class="col-md-3">
+                    <label class="form-label">Mã hàng</label>
+                    <input name="code" class="form-control" placeholder="P-5001" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tên</label>
+                    <input name="name" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tên tiếng Nhật</label>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Nhóm</label>
+                    <input name="category" class="form-control" value="General" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Đơn giá (¥)</label>
+                    <input name="unitPrice" type="number" min="0" step="1" class="form-control" value="1000" required />
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary">Lưu</button>
+                    <span class="text-muted small ms-2">POST /api/products — yêu cầu role Admin.</span>
+                </div>
+            </form>
+        </div>
+    }
+</div>

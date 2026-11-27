@@ -1,0 +1,86 @@
+name: ci
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore StockFlowInventory.sln
+
+      - name: Build (Release)
+        run: dotnet build StockFlowInventory.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/StockFlow.Inventory.Tests/StockFlow.Inventory.Tests.csproj -c Release --no-build --logger "trx;LogFileName=results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/StockFlow.Inventory.Tests/TestResults/results.trx
+
+  spa:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/Web.Spa
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: src/Web.Spa/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check + build
+        run: npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: spa-dist
+          path: src/Web.Spa/dist
+
+  docker:
+    needs: [build-and-test, spa]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: catalog-api
+            dockerfile: src/Services/Catalog/StockFlow.Inventory.Catalog.Api/Dockerfile
+          - name: ordering-api
+            dockerfile: src/Services/Ordering/StockFlow.Inventory.Ordering.Api/Dockerfile
+          - name: spa
+            dockerfile: src/Web.Spa/Dockerfile
+          - name: web
+            dockerfile: src/Web/StockFlow.Inventory.Web/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image (${{ matrix.name }})
+        run: docker build -f ${{ matrix.dockerfile }} -t stockflow-inventory/${{ matrix.name }}:${{ github.sha }} .

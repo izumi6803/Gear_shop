@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- Build offline được: tắt audit vulnerability (cần nuget.org) -->
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+</Project>

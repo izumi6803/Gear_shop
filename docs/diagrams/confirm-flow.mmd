@@ -1,0 +1,26 @@
+sequenceDiagram
+    autonumber
+    actor U as Sales
+    participant O as Ordering API
+    participant C as Catalog API
+    participant DB1 as OrderingDb
+    participant DB2 as CatalogDb
+
+    U->>O: POST /api/orders/{id}/confirm
+    Note right of O: JWT Bearer
+    O->>DB1: load Order + Lines
+    O->>O: EnsureCanConfirm()
+    O->>C: POST /internal/stocks/reserve
+    C->>DB2: load Stock (rowversion)
+    alt đủ tồn kho
+        C->>DB2: Reserved += qty + STOCK_MOVEMENT
+        C-->>O: 200 success
+        O->>O: order.Confirm()
+        O->>DB1: SaveChanges
+        O-->>U: 200 OrderDto
+    else thiếu tồn
+        C-->>O: 409 shortages[]
+        O-->>U: 409 STOCK_CONFLICT
+        Note over O,DB1: Đơn giữ nguyên Draft
+    end
+    Note over O,C: SaveChanges lỗi → release (compensation)

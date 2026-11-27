@@ -1,0 +1,38 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Build output / SPA
+dist/
+node_modules/
+*.tsbuildinfo
+
+# Local database (SQLite demo data)
+*.db
+*.db-shm
+*.db-wal
+
+# Logs & runtime artifacts
+*.log
+run-*.log
+run-*.err.log
+*.pid
+
+# Secrets / local env
+.env
+.env.local
+.env.*.local
+appsettings.Local.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Tooling caches
+.vercel
+
+# Binary tiện ích (tải lại bằng: Invoke-WebRequest <github release>)
+tools/cloudflared.exe

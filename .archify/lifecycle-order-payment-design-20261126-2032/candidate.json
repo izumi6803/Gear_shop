@@ -1,0 +1,116 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Marketplace order & payment lifecycle",
+    "subtitle": "Target design — stock is held before money moves",
+    "locale": "en",
+    "output": ".archify/lifecycle-order-payment-design-20261126-2032/order-payment-lifecycle.html",
+    "quality_profile": "showcase"
+  },
+  "mainPath": ["cart", "draft", "reserved", "paid", "shipped"],
+  "states": [
+    {
+      "id": "cart",
+      "type": "start",
+      "label": "Cart",
+      "sublabel": "browser only, no order yet",
+      "tag": "shopper",
+      "step": "01"
+    },
+    {
+      "id": "draft",
+      "type": "active",
+      "label": "Draft",
+      "sublabel": "order created, stock not held",
+      "tag": "transient",
+      "step": "02"
+    },
+    {
+      "id": "reserved",
+      "type": "waiting",
+      "label": "Reserved",
+      "sublabel": "stock held · unpaid",
+      "tag": "payment pending",
+      "step": "03"
+    },
+    {
+      "id": "paid",
+      "type": "active",
+      "label": "Paid",
+      "sublabel": "ready to pick and ship",
+      "tag": "payment captured",
+      "step": "04"
+    },
+    {
+      "id": "shipped",
+      "type": "success",
+      "label": "Shipped",
+      "sublabel": "stock issued · invoiced",
+      "tag": "fulfilled",
+      "step": "05"
+    },
+    {
+      "id": "declined",
+      "type": "failure",
+      "label": "Declined",
+      "sublabel": "reservation kept",
+      "tag": "retry or cancel"
+    },
+    {
+      "id": "cancelled",
+      "type": "failure",
+      "label": "Cancelled",
+      "sublabel": "reservation released",
+      "tag": "terminal"
+    },
+    {
+      "id": "refunded",
+      "type": "neutral",
+      "label": "Refunded",
+      "sublabel": "money returned by Admin",
+      "tag": "terminal"
+    }
+  ],
+  "transitions": [
+    { "id": "cart-draft", "from": "cart", "to": "draft", "label": "order" },
+    { "id": "draft-reserved", "from": "draft", "to": "reserved", "label": "reserve stock", "variant": "emphasis" },
+    { "id": "reserved-paid", "from": "reserved", "to": "paid", "label": "pay", "variant": "emphasis" },
+    { "id": "paid-shipped", "from": "paid", "to": "shipped", "label": "ship + invoice" },
+    { "id": "reserved-declined", "from": "reserved", "to": "declined", "label": "card declined", "variant": "security" },
+    { "id": "declined-paid", "from": "declined", "to": "paid", "label": "retry" },
+    { "id": "reserved-cancelled", "from": "reserved", "to": "cancelled", "label": "cancel · release", "variant": "security" },
+    { "id": "draft-cancelled", "from": "draft", "to": "cancelled", "label": "cancel before reservation" },
+    { "id": "paid-refunded", "from": "paid", "to": "refunded", "label": "refund (Admin)", "variant": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Why stock is held first",
+      "items": [
+        "Reservation happens at checkout, before any payment attempt",
+        "Two shoppers cannot buy the last unit: the second reservation is rejected with 409",
+        "A declined payment never releases the unit silently — the order keeps it until retry or cancel"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Who may move the order",
+      "items": [
+        "Shopper: place order, pay, cancel while unpaid",
+        "Sales: confirm and ship, plus cancel on the customer's behalf",
+        "Admin: everything Sales can do, plus refund",
+        "Ship is refused unless payment status is Paid"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Money and documents",
+      "items": [
+        "One invoice per order, created inside the ship transaction",
+        "Refunds flip payment status only; they never touch the stock ledger",
+        "Payment reference is stored, card data is not"
+      ]
+    }
+  ]
+}

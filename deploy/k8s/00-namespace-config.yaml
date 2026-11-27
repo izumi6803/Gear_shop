@@ -1,0 +1,31 @@
+# Tên file dùng tiền tố số để apply đúng thứ tự: kubectl apply -f deploy/k8s/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stockflow-inventory
+  labels:
+    app.kubernetes.io/part-of: stockflow-inventory
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-config
+  namespace: stockflow-inventory
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Database__AutoCreate: "false"          # production dùng migration, không EnsureCreated
+  Services__CatalogBaseUrl: "http://catalog-api:8080"
+  Services__OrderingBaseUrl: "http://ordering-api:8080"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inventory-secrets
+  namespace: stockflow-inventory
+type: Opaque
+stringData:
+  # DEMO ONLY. Production: tạo bằng Sealed Secrets / External Secrets / Key Vault CSI.
+  Jwt__Key: "change-me-in-production-0123456789abcdef"
+  Internal__ApiKey: "change-me-internal-key"
+  ConnectionStrings__CatalogDb: "Server=sqlserver.database.windows.net,1433;Database=StockFlowCatalog;User Id=app;Password=change-me;Encrypt=True"
+  ConnectionStrings__OrderingDb: "Server=sqlserver.database.windows.net,1433;Database=StockFlowOrdering;User Id=app;Password=change-me;Encrypt=True"

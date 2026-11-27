@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "lifecycle",
+  "quality": "showcase",
+  "specification": {
+    "path": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\candidate.json",
+    "sha256": "d5721889a4df90bfe0558d2e47e2f172c6bb974c6d7bd4b2bce8cff3631bda70",
+    "bytes": 3794
+  },
+  "artifact": {
+    "path": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\order-payment-lifecycle.html",
+    "sha256": "f621648cbaaf97cdf45072570ca74c7f7bd17e10e1c63c46c38be89917881835",
+    "bytes": 942280
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\order-payment-lifecycle.finalize.json",
+    "summaryReceipt": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\order-payment-lifecycle.finalize-summary.json",
+    "browserCheckReceipt": "E:\\C# Project\\.archify\\lifecycle-order-payment-design-20261126-2032\\order-payment-lifecycle.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.3.2",
+    "availableVersion": "3.3.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-26T01:26:56.693Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 9278,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

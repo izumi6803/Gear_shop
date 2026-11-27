@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "80fd1ad4-f517-4c84-9dd8-9c77706bdc89",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "E:\\C# Project\\.archify\\architecture-stockflow-20261126-082612\\candidate.json",
+  "output": "E:\\C# Project\\.archify\\architecture-stockflow-20261126-082612\\stockflow-architecture.html",
+  "specification": {
+    "sha256": "7bf13f0c0ab1fd40b49c0d8f0024e40a1ff5fee5868cf4c34f1e8b47876ca827",
+    "bytes": 3703
+  },
+  "artifact": {
+    "sha256": "1f221841a02766fdcf27640c157a1f18f2091a8bfa3c77fd8f92056c9e0a53d8",
+    "bytes": 946373
+  }
+}

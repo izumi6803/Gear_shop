@@ -1,0 +1,13 @@
+{
+  "name": "stockflow-browser-driver",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Driver điều khiển Chrome/Playwright qua HTTP để test UI từng bước",
+  "scripts": {
+    "start": "node driver.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.47.2"
+  }
+}
